@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { ArrowUpRight, Check, Plus, Trash2 } from "lucide-react";
+import { Check, Plus, Trash2 } from "lucide-react";
 import type { Task } from "../db/tasks";
+import TaskDetailLink from "./task-detail-link";
 
 function localDay() {
   const now = new Date();
@@ -86,13 +87,12 @@ export default function TaskDashboard({ userName }: { userName: string }) {
   }
 
   function taskRow(task: Task) {
-    const detailsLabel = task.hasDetails ? "查看明细" : "添加明细";
     return <li className={`task-row ${task.completed ? "is-done" : ""}`} key={task.id}>
       <button className="task-check" type="button" aria-label={task.completed ? `标记未完成：${task.title}` : `完成：${task.title}`}
         aria-pressed={task.completed} disabled={busy} onClick={() => void toggleTask(task)}>
         {task.completed && <Check size={15} strokeWidth={2} />}
       </button>
-      <span className="task-copy"><span className="task-title">{task.title}</span><span className="task-detail-trigger"><a className={`task-detail-link ${task.hasDetails ? "has-details" : ""}`} href={`/tasks/${encodeURIComponent(task.id)}`} aria-label={`${detailsLabel}：${task.title}`} aria-describedby={task.hasDetails ? `task-preview-${task.id}` : undefined}>{detailsLabel} <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /></a>{task.hasDetails && <span className="task-detail-preview" id={`task-preview-${task.id}`} role="tooltip"><span className="task-detail-preview-label">明细预览</span><span className="task-detail-preview-text">{task.detailsPreview || "此明细暂无可预览的文字，点击查看全文。"}</span><span className="task-detail-preview-more">点击查看全文 ↗</span></span>}</span></span>
+      <span className="task-copy"><span className="task-title">{task.title}</span><TaskDetailLink task={task} /></span>
       <button className="task-delete" type="button" aria-label={`删除：${task.title}`} disabled={busy} onClick={() => void deleteTask(task)}>
         <Trash2 size={17} strokeWidth={1.7} />
       </button>
@@ -102,7 +102,7 @@ export default function TaskDashboard({ userName }: { userName: string }) {
   return <div className="site-shell">
     <header className="topbar">
       <a className="brand" href="#today" aria-label="日笺，返回今天">日笺<span className="brand-mark">.</span></a>
-      <nav aria-label="页面导航"><a href="#today">今日计划</a><a href="#unfinished">往日未完成 <span className="nav-count">{overdue.length}</span></a></nav>
+      <nav aria-label="页面导航"><a href="#today" aria-current="page">今日计划</a><a href="/history">往日计划</a><a href="#unfinished">往日未完成 <span className="nav-count">{overdue.length}</span></a></nav>
       <div className="topbar-account"><span title={userName}>{userName}</span><form method="post" action="/api/auth/logout"><button type="submit">退出登录</button></form></div>
     </header>
 

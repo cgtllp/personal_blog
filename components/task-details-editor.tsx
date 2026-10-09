@@ -20,13 +20,14 @@ function displayDay(day: string) {
     .format(new Date(day + "T12:00:00"));
 }
 
-export default function TaskDetailsEditor({ task }: { task: TaskDetails }) {
+export default function TaskDetailsEditor({ task, fromHistory = false }: { task: TaskDetails; fromHistory?: boolean }) {
   const [content, setContent] = useState(task.detailsMd);
   const [savedContent, setSavedContent] = useState(task.detailsMd);
   const [updatedAt, setUpdatedAt] = useState(task.detailsUpdatedAt);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const dirty = content !== savedContent;
+  const backHref = fromHistory ? "/history" : "/";
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -93,7 +94,7 @@ export default function TaskDetailsEditor({ task }: { task: TaskDetails }) {
   return <div className="detail-shell">
     <header className="detail-topbar">
       <a className="brand" href="/" onClick={(event) => { if (dirty && !window.confirm("明细尚未保存，确定返回清单吗？")) event.preventDefault(); }}>日笺<span className="brand-mark">.</span></a>
-      <a className="detail-back" href="/" onClick={(event) => { if (dirty && !window.confirm("明细尚未保存，确定返回清单吗？")) event.preventDefault(); }}><ArrowLeft size={17} strokeWidth={1.8} />返回清单</a>
+      <a className="detail-back" href={backHref} onClick={(event) => { if (dirty && !window.confirm("明细尚未保存，确定返回清单吗？")) event.preventDefault(); }}><ArrowLeft size={17} strokeWidth={1.8} />{fromHistory ? "返回往日计划" : "返回清单"}</a>
     </header>
 
     <main className="detail-main">

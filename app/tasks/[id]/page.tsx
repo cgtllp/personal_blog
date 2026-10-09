@@ -6,10 +6,10 @@ import TaskDetailsEditor from "../../../components/task-details-editor";
 
 export const dynamic = "force-dynamic";
 
-export default async function TaskDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function TaskDetailsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
   const user = await currentUserFromCookieHeader((await headers()).get("cookie"));
   if (!user) redirect("/");
   const task = await getTaskDetails(user.id, (await params).id);
   if (!task) notFound();
-  return <TaskDetailsEditor task={task} />;
+  return <TaskDetailsEditor task={task} fromHistory={(await searchParams).from === "history"} />;
 }
