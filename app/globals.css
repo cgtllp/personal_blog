@@ -20,8 +20,9 @@ a { color:inherit; text-decoration:none; }
 .topbar-end { justify-self:end; color:var(--muted); font-size:13px; letter-spacing:.06em; }
 .topbar-account { justify-self:end; display:flex; align-items:center; gap:18px; max-width:240px; font-size:13px; }
 .topbar-account span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); }
-.topbar-account a { flex:none; color:var(--accent); border-bottom:1px solid currentColor; }
-.topbar-account a:hover { color:var(--ink); }
+.topbar-account form { margin:0; flex:none; }
+.topbar-account button { padding:0; border:0; border-bottom:1px solid currentColor; background:none; color:var(--accent); font-size:inherit; }
+.topbar-account button:hover { color:var(--ink); }
 .page-layout { width:100%; max-width:1680px; margin:0 auto; flex:1; display:grid; grid-template-columns:minmax(70px,10%) minmax(0,1fr) minmax(340px,31%); }
 .date-rail { padding:55px 22px 35px clamp(22px,4vw,64px); border-right:1px solid var(--line); display:flex; flex-direction:column; justify-content:space-between; }
 .rail-content { display:flex; flex-direction:column; align-items:flex-start; gap:23px; }
@@ -99,6 +100,17 @@ a { color:inherit; text-decoration:none; }
 .login-button:hover { background:var(--accent); }
 .login-button:active { transform:translateY(1px); }
 .login-note { max-width:33em; font-size:13px; line-height:1.8; color:var(--muted); margin:20px 0 0; }
+.auth-panel { max-width:390px; }
+.auth-tabs { display:flex; gap:24px; border-bottom:1px solid var(--line); margin:0 0 24px; }
+.auth-tabs button { padding:0 2px 11px; border:0; border-bottom:2px solid transparent; background:none; color:var(--muted); font-weight:600; }
+.auth-tabs button.is-active { color:var(--ink); border-color:var(--accent); }
+.auth-form { display:flex; flex-direction:column; gap:9px; }
+.auth-form label { margin-top:9px; font-size:13px; font-weight:700; }
+.auth-form input { width:100%; min-height:46px; padding:10px 13px; border:1px solid var(--line); border-radius:2px; background:transparent; color:var(--ink); font-size:15px; }
+.auth-form input:focus { border-color:var(--accent); outline:2px solid transparent; }
+.auth-form input::placeholder { color:var(--muted); }
+.auth-form .login-button { width:100%; border:0; margin-top:18px; }
+.auth-error { margin:8px 0 0; color:#a53f2f; font-size:13px; }
 .login-side { background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; justify-content:center; align-items:center; gap:30px; }
 .login-side-date { font:600 clamp(80px,7vw,118px)/1.35 "Songti SC","Noto Serif CJK SC",serif; letter-spacing:.08em; color:var(--ink); }
 .login-side-rule { width:1px; height:82px; background:var(--accent); }
@@ -109,5 +121,5 @@ a { color:inherit; text-decoration:none; }
 @media (max-width:800px) { .topbar-account { margin-left:auto; } .login-layout { display:block; } .login-rail,.login-side { display:none; } .login-content { padding:15vh 28px 80px; } }
 @media (max-width:480px) { .topbar { padding:0 20px; } .brand { font-size:25px; } .topbar nav { gap:12px; font-size:12px; } .nav-count { display:none; } .today-section { padding:48px 22px 60px; } .today-heading h1 { font-size:39px; } .section-intro { font-size:14px; } .history-panel { padding:50px 22px 70px; } .footer { padding:18px 22px; } .footer span:last-child { display:none; } .task-delete { opacity:1; } }
 @media (max-width:480px) { .topbar-account span { display:none; } .login-content { padding:13vh 22px 70px; } .login-content h1 { font-size:48px; } .login-button { width:100%; } }
-@media (prefers-color-scheme:dark) { :root { color-scheme:dark; --paper:#182521; --ink:#edf1e8; --muted:#adb9ae; --line:#46564d; --panel:#24342d; --accent:#ee9572; } .large-date { color:#425549; } .input-line input::placeholder { color:#b9c5ba; } .history-intro,.empty-history { color:#b4c0b5; } .history-list .task-row { border-color:#48594e; } .history-divider { background:#48594e; } .loading-lines span { background:#3b4d42; } .error-banner { color:#ffab91; border-color:#d48472; } }
+@media (prefers-color-scheme:dark) { :root { color-scheme:dark; --paper:#182521; --ink:#edf1e8; --muted:#adb9ae; --line:#46564d; --panel:#24342d; --accent:#ee9572; } .large-date { color:#425549; } .input-line input::placeholder { color:#b9c5ba; } .history-intro,.empty-history { color:#b4c0b5; } .history-list .task-row { border-color:#48594e; } .history-divider { background:#48594e; } .loading-lines span { background:#3b4d42; } .error-banner { color:#ffab91; border-color:#d48472; } .auth-error { color:#ffab91; } }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; } }

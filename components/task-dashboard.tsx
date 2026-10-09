@@ -39,10 +39,9 @@ export default function TaskDashboard({ userName }: { userName: string }) {
   }, []);
 
   useEffect(() => {
-    setToday(localDay());
-    void load();
+    const initial = window.setTimeout(() => { setToday(localDay()); void load(); }, 0);
     const timer = window.setInterval(() => setToday(localDay()), 60_000);
-    return () => window.clearInterval(timer);
+    return () => { window.clearTimeout(initial); window.clearInterval(timer); };
   }, [load]);
 
   const todayTasks = useMemo(() => tasks.filter((task) => task.day === today), [tasks, today]);
@@ -103,7 +102,7 @@ export default function TaskDashboard({ userName }: { userName: string }) {
     <header className="topbar">
       <a className="brand" href="#today" aria-label="日笺，返回今天">日笺<span className="brand-mark">.</span></a>
       <nav aria-label="页面导航"><a href="#today">今日计划</a><a href="#unfinished">往日未完成 <span className="nav-count">{overdue.length}</span></a></nav>
-      <div className="topbar-account"><span title={userName}>{userName}</span><a href="/signout-with-chatgpt?return_to=%2F" target="_top">退出登录</a></div>
+      <div className="topbar-account"><span title={userName}>{userName}</span><form method="post" action="/api/auth/logout"><button type="submit">退出登录</button></form></div>
     </header>
 
     <main className="page-layout">
