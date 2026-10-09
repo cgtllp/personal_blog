@@ -92,7 +92,7 @@ export default function TaskDashboard({ userName }: { userName: string }) {
         aria-pressed={task.completed} disabled={busy} onClick={() => void toggleTask(task)}>
         {task.completed && <Check size={15} strokeWidth={2} />}
       </button>
-      <span className="task-copy"><span className="task-title">{task.title}</span><a className={`task-detail-link ${task.hasDetails ? "has-details" : ""}`} href={`/tasks/${encodeURIComponent(task.id)}`} aria-label={`${detailsLabel}：${task.title}`}>{detailsLabel} <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /></a></span>
+      <span className="task-copy"><span className="task-title">{task.title}</span><span className="task-detail-trigger"><a className={`task-detail-link ${task.hasDetails ? "has-details" : ""}`} href={`/tasks/${encodeURIComponent(task.id)}`} aria-label={`${detailsLabel}：${task.title}`} aria-describedby={task.hasDetails ? `task-preview-${task.id}` : undefined}>{detailsLabel} <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /></a>{task.hasDetails && <span className="task-detail-preview" id={`task-preview-${task.id}`} role="tooltip"><span className="task-detail-preview-label">明细预览</span><span className="task-detail-preview-text">{task.detailsPreview || "此明细暂无可预览的文字，点击查看全文。"}</span><span className="task-detail-preview-more">点击查看全文 ↗</span></span>}</span></span>
       <button className="task-delete" type="button" aria-label={`删除：${task.title}`} disabled={busy} onClick={() => void deleteTask(task)}>
         <Trash2 size={17} strokeWidth={1.7} />
       </button>
