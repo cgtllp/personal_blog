@@ -11,6 +11,7 @@ import { Placeholder } from "@tiptap/extension-placeholder";
 import Image from "@tiptap/extension-image";
 import { TableKit } from "@tiptap/extension-table";
 import type { TaskDetails } from "../db/tasks";
+import { DeleteSelectedBlocks } from "./delete-selected-blocks";
 
 const MAX_DETAILS_LENGTH = 50_000;
 
@@ -30,6 +31,7 @@ export default function TaskDetailsEditor({ task }: { task: TaskDetails }) {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
+      DeleteSelectedBlocks,
       StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
       TaskList,
       TaskItem.configure({ nested: true }),
@@ -114,7 +116,7 @@ export default function TaskDetailsEditor({ task }: { task: TaskDetails }) {
           </div>
           <EditorContent editor={editor} className="detail-rich-editor markdown-body" />
         </div>
-        <div className="detail-editor-foot"><span className={content.length > MAX_DETAILS_LENGTH ? "detail-count-over" : ""}>{content.length.toLocaleString("zh-CN")} / 50,000 字{content.length > MAX_DETAILS_LENGTH ? " · 已超出上限" : ""}</span><span>输入 #、-、[ ] 后按空格，即可排版</span></div>
+        <div className="detail-editor-foot"><span className={content.length > MAX_DETAILS_LENGTH ? "detail-count-over" : ""}>{content.length.toLocaleString("zh-CN")} / 50,000 字{content.length > MAX_DETAILS_LENGTH ? " · 已超出上限" : ""}</span><span>选中整段后按删除键，可一次移除整块</span></div>
       </section>
     </main>
   </div>;
