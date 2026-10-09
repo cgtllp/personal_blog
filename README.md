@@ -47,7 +47,7 @@ node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js se
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js deploy --config dist/server/wrangler.deploy.json
 ```
 
-`secret put` 会交互式要求输入密钥。部署完成前设置好密钥，再开放站点注册。更新代码时重跑构建、准备配置、迁移和部署命令；不要重新创建数据库或更换密钥。可通过 `CLOUDFLARE_WORKER_NAME` 和 `CLOUDFLARE_D1_DATABASE_NAME` 修改默认名称。`dist/server/wrangler.deploy.json` 是生成文件，不提交到 Git。
+`secret put` 会交互式要求输入密钥。部署完成前设置好密钥，再开放站点注册。更新代码时重跑构建、准备配置、迁移和部署命令；不要重新创建数据库或更换密钥。默认将 Worker 绑定到 `rijian.qingheye.top`，该域名需已在同一 Cloudflare 账号中激活；如需换域名，可设置 `CLOUDFLARE_CUSTOM_DOMAIN`。也可通过 `CLOUDFLARE_WORKER_NAME` 和 `CLOUDFLARE_D1_DATABASE_NAME` 修改默认名称。`dist/server/wrangler.deploy.json` 是生成文件，不提交到 Git。
 
 原来用 ChatGPT 身份创建的任务保留在旧数据库中，无法仅凭新的账号密码自动判断它们属于谁。迁移这些任务需要先确认旧身份和新账号的对应关系。
 
