@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   if (!input) return noStoreJson({ error: "请求内容无效。" }, 400);
   const normalized = normalizeUsername(input.username);
   if (!normalized || !validPassword(input.password)) {
-    return noStoreJson({ error: "账号须为 3–32 位字母、数字或下划线；密码至少 15 位。" }, 400);
+    return noStoreJson({ error: "账号须为 3–32 位字母、数字或下划线；密码不能为空。" }, 400);
   }
   if (!(await registrationAllowed(request))) {
     return noStoreJson({ error: "注册尝试过多，请一小时后再试。" }, 429);

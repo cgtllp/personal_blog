@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const input = await readSmallJson(request);
   const normalized = normalizeUsername(input?.username);
   const password = input?.password;
-  if (!normalized || typeof password !== "string" || password.length > 128) {
+  if (!normalized || typeof password !== "string" || !password) {
     return noStoreJson({ error: "账号或密码错误。" }, 401);
   }
   try {

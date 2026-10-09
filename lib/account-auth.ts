@@ -76,7 +76,7 @@ export function normalizeUsername(value: unknown): string | null {
 }
 
 export function validPassword(value: unknown): value is string {
-  return typeof value === "string" && value.length >= 15 && value.length <= 128 && encoder.encode(value).length <= 1024;
+  return typeof value === "string" && value.length > 0;
 }
 
 function cookieName(request: Request): string {

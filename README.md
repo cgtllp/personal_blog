@@ -54,7 +54,7 @@ node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js de
 ## 账号规则
 
 - 账号名为 3–32 位英文字母、数字或下划线，不区分大小写。
-- 密码至少 15 位。服务端保存加盐的密码派生值，登录会话保存在 D1，浏览器仅保存 HttpOnly Cookie。
+- 密码不能为空，没有最短长度要求。服务端保存加盐的密码派生值，登录会话保存在 D1，浏览器仅保存 HttpOnly Cookie。
 - 目前没有邮箱或密码找回功能；请妥善保存账号、密码和部署密钥。
 
 ## 检查

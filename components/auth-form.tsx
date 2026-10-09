@@ -55,12 +55,12 @@ export default function AuthForm() {
         autoComplete="username" pattern="[A-Za-z0-9_]{3,32}" maxLength={32} required placeholder="3–32 位字母、数字或下划线" disabled={busy} />
       <label htmlFor="auth-password">密码</label>
       <input id="auth-password" name="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)}
-        autoComplete={mode === "register" ? "new-password" : "current-password"} minLength={mode === "register" ? 15 : undefined}
-        maxLength={128} required placeholder={mode === "register" ? "至少 15 位" : "输入密码"} disabled={busy} />
+        autoComplete={mode === "register" ? "new-password" : "current-password"}
+        required placeholder="输入密码" disabled={busy} />
       {mode === "register" && <>
         <label htmlFor="auth-confirm">确认密码</label>
         <input id="auth-confirm" name="confirm" type="password" value={confirm} onChange={(event) => setConfirm(event.target.value)}
-          autoComplete="new-password" minLength={15} maxLength={128} required placeholder="再次输入密码" disabled={busy} />
+          autoComplete="new-password" required placeholder="再次输入密码" disabled={busy} />
       </>}
       {error && <p className="auth-error" role="alert">{error}</p>}
       <button className="login-button" type="submit" disabled={busy}>{busy ? "请稍候…" : mode === "login" ? "登录" : "创建账号"}</button>
