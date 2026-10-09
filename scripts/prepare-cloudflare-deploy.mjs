@@ -16,6 +16,8 @@ const serverDir = join(process.cwd(), "dist", "server");
 const generated = JSON.parse(await readFile(join(serverDir, "wrangler.json"), "utf8"));
 generated.name = workerName;
 generated.topLevelName = workerName;
+if (process.env.CLOUDFLARE_ACCOUNT_ID) generated.account_id = process.env.CLOUDFLARE_ACCOUNT_ID;
+generated.secrets = { required: ["AUTH_PEPPER"] };
 generated.d1_databases = [{
   binding: "DB",
   database_name: databaseName,

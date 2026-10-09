@@ -28,11 +28,12 @@ npm start
 ```sh
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 create rijian-daily-notes
 export CLOUDFLARE_D1_DATABASE_ID="上一步返回的 UUID"
+# 如果 Wrangler 登录了多个账号，也设置 CLOUDFLARE_ACCOUNT_ID
 npm run build
 npm run prepare:cloudflare
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 migrations apply DB --remote --config dist/server/wrangler.deploy.json
-node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js deploy --config dist/server/wrangler.deploy.json
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js secret put AUTH_PEPPER --config dist/server/wrangler.deploy.json
+node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js deploy --config dist/server/wrangler.deploy.json
 ```
 
 `secret put` 会交互式要求输入密钥。部署完成前设置好密钥，再开放站点注册。更新代码时重跑构建、准备配置、迁移和部署命令；不要重新创建数据库或更换密钥。可通过 `CLOUDFLARE_WORKER_NAME` 和 `CLOUDFLARE_D1_DATABASE_NAME` 修改默认名称。`dist/server/wrangler.deploy.json` 是生成文件，不提交到 Git。
