@@ -6,6 +6,7 @@ export type Task = {
   title: string;
   completed: boolean;
   createdAt: string;
+  hasDetails: boolean;
 };
 
 export type TaskDetails = Task & { detailsMd: string; detailsUpdatedAt: string | null };
@@ -21,12 +22,20 @@ type TaskRow = {
   title: string;
   completed: number;
   created_at: string;
+  has_details?: number;
   details_md?: string;
   details_updated_at?: string | null;
 };
 
 function fromRow(row: TaskRow): Task {
-  return { id: row.id, day: row.day, title: row.title, completed: row.completed === 1, createdAt: row.created_at };
+  return {
+    id: row.id,
+    day: row.day,
+    title: row.title,
+    completed: row.completed === 1,
+    createdAt: row.created_at,
+    hasDetails: row.has_details === 1 || (row.has_details === undefined && Boolean(row.details_md?.trim())),
+  };
 }
 
 export async function getTaskDetails(ownerId: string, id: string): Promise<TaskDetails | null> {
@@ -46,13 +55,15 @@ export async function saveTaskDetails(ownerId: string, id: string, detailsMd: st
 
 export async function listTasks(ownerId: string): Promise<Task[]> {
   const rows = await database().prepare(
-    "SELECT id, day, title, completed, created_at FROM tasks WHERE owner_id = ? ORDER BY day DESC, created_at ASC"
+    "SELECT id, day, title, completed, created_at, " +
+    "length(trim(details_md, char(9) || char(10) || char(13) || ' ')) > 0 AS has_details " +
+    "FROM tasks WHERE owner_id = ? ORDER BY day DESC, created_at ASC"
   ).bind(ownerId).all<TaskRow>();
   return rows.results.map(fromRow);
 }
 
 export async function createTask(ownerId: string, day: string, title: string): Promise<Task> {
-  const task: Task = { id: crypto.randomUUID(), day, title, completed: false, createdAt: new Date().toISOString() };
+  const task: Task = { id: crypto.randomUUID(), day, title, completed: false, createdAt: new Date().toISOString(), hasDetails: false };
   await database().prepare(
     "INSERT INTO tasks (id, owner_id, day, title, completed, created_at) VALUES (?, ?, ?, ?, 0, ?)"
   ).bind(task.id, ownerId, day, title, task.createdAt).run();

@@ -86,12 +86,13 @@ export default function TaskDashboard({ userName }: { userName: string }) {
   }
 
   function taskRow(task: Task) {
+    const detailsLabel = task.hasDetails ? "查看明细" : "添加明细";
     return <li className={`task-row ${task.completed ? "is-done" : ""}`} key={task.id}>
       <button className="task-check" type="button" aria-label={task.completed ? `标记未完成：${task.title}` : `完成：${task.title}`}
         aria-pressed={task.completed} disabled={busy} onClick={() => void toggleTask(task)}>
         {task.completed && <Check size={15} strokeWidth={2} />}
       </button>
-      <span className="task-copy"><span className="task-title">{task.title}</span><a className="task-detail-link" href={`/tasks/${encodeURIComponent(task.id)}`} aria-label={`编辑明细：${task.title}`}>编辑明细 <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /></a></span>
+      <span className="task-copy"><span className="task-title">{task.title}</span><a className={`task-detail-link ${task.hasDetails ? "has-details" : ""}`} href={`/tasks/${encodeURIComponent(task.id)}`} aria-label={`${detailsLabel}：${task.title}`}>{detailsLabel} <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /></a></span>
       <button className="task-delete" type="button" aria-label={`删除：${task.title}`} disabled={busy} onClick={() => void deleteTask(task)}>
         <Trash2 size={17} strokeWidth={1.7} />
       </button>

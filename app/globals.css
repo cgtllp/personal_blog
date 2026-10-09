@@ -60,6 +60,7 @@ a { color:inherit; text-decoration:none; }
 .task-copy { flex:1; min-width:0; line-height:1.55; }
 .task-title { overflow-wrap:anywhere; }
 .task-detail-link { display:inline-flex; align-items:center; gap:2px; margin-left:13px; color:var(--accent); font-size:12px; font-weight:600; white-space:nowrap; vertical-align:baseline; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:3px; transition:text-decoration-color .18s; }
+.task-detail-link.has-details { color:var(--ink); }
 .task-detail-link:hover,.task-detail-link:focus-visible { text-decoration-color:currentColor; }
 .task-detail-link svg { position:relative; top:2px; }
 .is-done .task-title { text-decoration:line-through; color:var(--muted); }
