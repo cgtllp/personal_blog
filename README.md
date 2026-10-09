@@ -10,7 +10,11 @@
 npm ci
 ```
 
-生成一个随机密钥，并写入项目根目录的 `.dev.vars`。文件格式为 `AUTH_PEPPER=<64 位十六进制值>`；不要提交该文件。可以用 `node -e 'console.log(require("node:crypto").randomBytes(32).toString("hex"))'` 生成值。
+生成一个随机密钥，并写入项目根目录的 `.dev.vars`。不要提交该文件；若本地已有账号，不要覆盖旧密钥。
+
+```sh
+node -e 'const fs=require("node:fs"); const crypto=require("node:crypto"); fs.writeFileSync(".dev.vars", `AUTH_PEPPER=${crypto.randomBytes(32).toString("hex")}\n`, { flag: "wx", mode: 0o600 })'
+```
 
 ```sh
 npm run build
@@ -19,7 +23,14 @@ node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1
 npm start
 ```
 
-上述两条 SQL 只需对一个新的本地数据库各执行一次。`npm run dev` 也可用于开发预览，它与构建预览共用 `.wrangler/state`。
+上述两条 SQL 只需对一个新的本地数据库各执行一次。`npm start` 会把根目录的 `.dev.vars` 复制到构建预览的运行目录。改代码时用 `npm run dev` 开启热更新；两个模式共用 `.wrangler/state`。终端会打印本地访问地址，通常是 `http://127.0.0.1:5173/`（开发）或 `http://127.0.0.1:8787/`（构建预览）。
+
+### 调试
+
+- 日常开发：运行 `npm run dev`，在浏览器开发者工具的 Console 看前端报错，在 Network 查看 `/api/auth/*` 和 `/api/tasks` 的状态码与响应；服务端错误打印在运行命令的终端。
+- 检查生产构建：修改代码后运行 `npm run build && npm start`。可用 `npm start -- --port 8792` 换端口。
+- 检查类型、格式和构建：运行 `npm run lint`、`npx tsc --noEmit`、`npm run build`。
+- 如果注册或登录返回 500，先核对 `.dev.vars` 是否有 `AUTH_PEPPER`、是否在项目根目录，并查看终端报错。如果任务接口返回 401，请先登录；若数据库还未初始化，按上面的顺序应用两个 SQL 文件。
 
 ## 部署到 Cloudflare Workers
 
