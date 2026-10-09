@@ -1,34 +1,59 @@
 "use client";
 /* eslint-disable @next/next/no-html-link-for-pages -- Full navigation avoids the current Vinext RSC prefetch failure on this Worker. */
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, Eye, PenLine, Save } from "lucide-react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, Save } from "lucide-react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Markdown } from "@tiptap/markdown";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { Placeholder } from "@tiptap/extension-placeholder";
+import Image from "@tiptap/extension-image";
+import { TableKit } from "@tiptap/extension-table";
 import type { TaskDetails } from "../db/tasks";
+
+const MAX_DETAILS_LENGTH = 50_000;
 
 function displayDay(day: string) {
   return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" })
-    .format(new Date(`${day}T12:00:00`));
+    .format(new Date(day + "T12:00:00"));
 }
 
 export default function TaskDetailsEditor({ task }: { task: TaskDetails }) {
   const [content, setContent] = useState(task.detailsMd);
   const [savedContent, setSavedContent] = useState(task.detailsMd);
   const [updatedAt, setUpdatedAt] = useState(task.detailsUpdatedAt);
-  const [view, setView] = useState<"write" | "preview">("write");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const editorRef = useRef<HTMLTextAreaElement>(null);
   const dirty = content !== savedContent;
 
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Image,
+      TableKit,
+      Markdown,
+      Placeholder.configure({ placeholder: "从这里开始写… 输入 # 加空格，可以立即创建标题。" }),
+    ],
+    content: task.detailsMd,
+    contentType: "markdown",
+    editorProps: { attributes: { "aria-label": "任务完成明细", spellcheck: "false" } },
+    onUpdate: ({ editor: currentEditor }) => {
+      setContent(currentEditor.getMarkdown());
+      setError("");
+    },
+  });
+
   const save = useCallback(async () => {
-    if (saving || content === savedContent) return;
+    if (saving || content === savedContent || content.length > MAX_DETAILS_LENGTH) return;
     const submitted = content;
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(`/api/tasks/${encodeURIComponent(task.id)}/details`, {
+      const response = await fetch("/api/tasks/" + encodeURIComponent(task.id) + "/details", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ detailsMd: submitted }),
@@ -63,27 +88,6 @@ export default function TaskDetailsEditor({ task }: { task: TaskDetails }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [save]);
 
-  function insertSnippet(before: string, after = "", fallback = "") {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const { selectionStart: start, selectionEnd: end } = editor;
-    const selection = content.slice(start, end) || fallback;
-    const next = content.slice(0, start) + before + selection + after + content.slice(end);
-    setContent(next);
-    setError("");
-    requestAnimationFrame(() => {
-      editor.focus();
-      editor.setSelectionRange(start + before.length, start + before.length + selection.length);
-    });
-  }
-
-  function insertLine(prefix: string, fallback = "") {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const separator = editor.selectionStart > 0 && content[editor.selectionStart - 1] !== "\n" ? "\n" : "";
-    insertSnippet(`${separator}${prefix}`, "", fallback);
-  }
-
   return <div className="detail-shell">
     <header className="detail-topbar">
       <a className="brand" href="/" onClick={(event) => { if (dirty && !window.confirm("明细尚未保存，确定返回清单吗？")) event.preventDefault(); }}>日笺<span className="brand-mark">.</span></a>
@@ -98,17 +102,19 @@ export default function TaskDetailsEditor({ task }: { task: TaskDetails }) {
       </div>
 
       <section className="detail-workspace" aria-labelledby="details-heading">
-        <div className="detail-workspace-heading"><div><h2 id="details-heading">完成明细</h2><p>写下完成过程、结果，或值得留存的细节。</p></div><div className="detail-save-area"><span className="detail-save-status" role="status">{saving ? "正在保存…" : dirty ? "尚未保存" : updatedAt ? "已保存" : "空白页面"}</span><button className="detail-save" type="button" disabled={!dirty || saving} onClick={() => void save()}><Save size={16} strokeWidth={1.8} />保存明细</button></div></div>
+        <div className="detail-workspace-heading"><div><h2 id="details-heading">完成明细</h2><p>写下完成过程、结果，或值得留存的细节。</p></div><div className="detail-save-area"><span className="detail-save-status" role="status">{saving ? "正在保存…" : dirty ? "尚未保存" : updatedAt ? "已保存" : "空白页面"}</span><button className="detail-save" type="button" disabled={!dirty || saving || content.length > MAX_DETAILS_LENGTH} onClick={() => void save()}><Save size={16} strokeWidth={1.8} />保存明细</button></div></div>
         {error && <p className="detail-error" role="alert">{error}</p>}
-        <div className="detail-editor-bar">
-          <div className="detail-tabs" role="tablist" aria-label="明细视图"><button type="button" role="tab" aria-selected={view === "write"} onClick={() => setView("write")}><PenLine size={15} strokeWidth={1.8} />编辑</button><button type="button" role="tab" aria-selected={view === "preview"} onClick={() => setView("preview")}><Eye size={16} strokeWidth={1.8} />预览</button></div>
-          <span className="detail-format">Markdown</span>
+        <div className="detail-editor-bar"><span className="detail-editor-label">边写边排版</span><span className="detail-format">Markdown</span></div>
+        <div className="detail-writing">
+          <div className="detail-tools" aria-label="文字格式">
+            <button type="button" title="标题二（也可输入 ## 后按空格）" aria-pressed={editor?.isActive("heading", { level: 2 }) ?? false} disabled={!editor} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}>标题</button>
+            <button type="button" title="加粗" aria-pressed={editor?.isActive("bold") ?? false} disabled={!editor} onClick={() => editor?.chain().focus().toggleBold().run()}>加粗</button>
+            <button type="button" title="无序列表" aria-pressed={editor?.isActive("bulletList") ?? false} disabled={!editor} onClick={() => editor?.chain().focus().toggleBulletList().run()}>列表</button>
+            <button type="button" title="待办清单" aria-pressed={editor?.isActive("taskList") ?? false} disabled={!editor} onClick={() => editor?.chain().focus().toggleTaskList().run()}>清单</button>
+          </div>
+          <EditorContent editor={editor} className="detail-rich-editor markdown-body" />
         </div>
-        {view === "write" ? <div className="detail-writing" role="tabpanel" aria-label="Markdown 编辑">
-          <div className="detail-tools" aria-label="Markdown 快捷格式"><button type="button" onClick={() => insertLine("## ", "小标题")}>标题</button><button type="button" onClick={() => insertSnippet("**", "**", "重点")}>加粗</button><button type="button" onClick={() => insertLine("- ", "列表项")}>列表</button><button type="button" onClick={() => insertLine("- [ ] ", "待完成项")}>清单</button></div>
-          <textarea ref={editorRef} aria-label="任务完成明细 Markdown" value={content} maxLength={50_000} onChange={(event) => { setContent(event.target.value); setError(""); }} placeholder={"从这里开始写…\n\n例如：\n## 完成过程\n- 做了什么\n- 得到了什么结果"} spellCheck={false} />
-        </div> : <div className="detail-preview markdown-body" role="tabpanel" aria-label="Markdown 预览">{content.trim() ? <Markdown remarkPlugins={[remarkGfm]} components={{ a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}>{content}</Markdown> : <p className="detail-preview-empty">还没有写入内容。切回编辑，开始记录这件事。</p>}</div>}
-        <div className="detail-editor-foot"><span>{content.length.toLocaleString("zh-CN")} / 50,000 字</span><span>{view === "write" ? "支持标题、列表、链接与待办清单" : <><Check size={14} strokeWidth={1.8} />预览按 Markdown 排版</>}</span></div>
+        <div className="detail-editor-foot"><span className={content.length > MAX_DETAILS_LENGTH ? "detail-count-over" : ""}>{content.length.toLocaleString("zh-CN")} / 50,000 字{content.length > MAX_DETAILS_LENGTH ? " · 已超出上限" : ""}</span><span>输入 #、-、[ ] 后按空格，即可排版</span></div>
       </section>
     </main>
   </div>;
