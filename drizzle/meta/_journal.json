@@ -15,6 +15,13 @@
       "when": 1791535003922,
       "tag": "0001_red_morgan_stark",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791539696411,
+      "tag": "0002_careless_brother_voodoo",
+      "breakpoints": true
     }
   ]
 }

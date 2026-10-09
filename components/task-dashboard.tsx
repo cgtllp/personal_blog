@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { ArrowUpRight, Check, Plus, Trash2 } from "lucide-react";
 import type { Task } from "../db/tasks";
 
 function localDay() {
@@ -91,7 +91,7 @@ export default function TaskDashboard({ userName }: { userName: string }) {
         aria-pressed={task.completed} disabled={busy} onClick={() => void toggleTask(task)}>
         {task.completed && <Check size={15} strokeWidth={2} />}
       </button>
-      <span className="task-title">{task.title}</span>
+      <span className="task-copy"><span className="task-title">{task.title}</span><a className="task-detail-link" href={`/tasks/${encodeURIComponent(task.id)}`} aria-label={`编辑明细：${task.title}`}>编辑明细 <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /></a></span>
       <button className="task-delete" type="button" aria-label={`删除：${task.title}`} disabled={busy} onClick={() => void deleteTask(task)}>
         <Trash2 size={17} strokeWidth={1.7} />
       </button>

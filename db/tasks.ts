@@ -8,6 +8,8 @@ export type Task = {
   createdAt: string;
 };
 
+export type TaskDetails = Task & { detailsMd: string; detailsUpdatedAt: string | null };
+
 function database() {
   if (!env.DB) throw new Error("Database unavailable");
   return env.DB;
@@ -19,10 +21,27 @@ type TaskRow = {
   title: string;
   completed: number;
   created_at: string;
+  details_md?: string;
+  details_updated_at?: string | null;
 };
 
 function fromRow(row: TaskRow): Task {
   return { id: row.id, day: row.day, title: row.title, completed: row.completed === 1, createdAt: row.created_at };
+}
+
+export async function getTaskDetails(ownerId: string, id: string): Promise<TaskDetails | null> {
+  const row = await database().prepare(
+    "SELECT id, day, title, completed, created_at, details_md, details_updated_at FROM tasks WHERE id = ? AND owner_id = ? LIMIT 1"
+  ).bind(id, ownerId).first<TaskRow>();
+  return row ? { ...fromRow(row), detailsMd: row.details_md ?? "", detailsUpdatedAt: row.details_updated_at ?? null } : null;
+}
+
+export async function saveTaskDetails(ownerId: string, id: string, detailsMd: string): Promise<string | null> {
+  const updatedAt = new Date().toISOString();
+  const result = await database().prepare(
+    "UPDATE tasks SET details_md = ?, details_updated_at = ? WHERE id = ? AND owner_id = ?"
+  ).bind(detailsMd, updatedAt, id, ownerId).run();
+  return result.meta.changes > 0 ? updatedAt : null;
 }
 
 export async function listTasks(ownerId: string): Promise<Task[]> {

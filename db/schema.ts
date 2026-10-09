@@ -6,6 +6,8 @@ export const tasks = sqliteTable("tasks", {
   day: text("day").notNull(),
   title: text("title").notNull(),
   completed: integer("completed", { mode: "boolean" }).notNull().default(false),
+  detailsMd: text("details_md").notNull().default(""),
+  detailsUpdatedAt: text("details_updated_at"),
   createdAt: text("created_at").notNull(),
 }, (table) => [
   index("idx_tasks_owner_day").on(table.ownerId, table.day),

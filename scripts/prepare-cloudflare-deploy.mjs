@@ -29,6 +29,7 @@ generated.d1_databases = [{
   migrations_dir: "drizzle",
 }];
 generated.routes = [{ pattern: customDomain, custom_domain: true }];
+generated.workers_dev = true;
 
 const migrationDir = join(serverDir, "drizzle");
 await mkdir(migrationDir, { recursive: true });
